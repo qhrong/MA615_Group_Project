@@ -1,0 +1,136 @@
+---
+title: "MA615_DSR_HW3"
+author: "Qianhui Rong, Fionnuala Mcpeake, Yifeng Luo, Yaotang Luo"
+date: "2018/10/1"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Libraries
+```{r}
+library(tidyverse)
+library(scales)
+library(ggplot2)
+```
+
+#Importing csv
+```{r}
+data <- read.csv("/Users/apple/Desktop/SARStats1500.csv",header = TRUE)
+View(data)
+```
+
+The data cleaning part is a group work. We've worked together to 
+determine data's selection criteria. 
+
+#Data cleaning
+The main goal of data cleaning is to eliminate observations with 
+string of "[Total]", which is similar to NA. 
+```{r}
+data %>% filter(State!="[Total]"&
+                  Industry!="[Total]"&
+                  Suspicious.Activity!="[Total]"&
+                  Regulator!="[Total]"&
+                  Relationship!="[Total]"&
+                  Product!="[Total]"&
+                  Instrument!="[Total]") -> clean_data
+View(clean_data)
+```
+
+#Check if data still has "[Total]"
+```{r}
+match("[Total]",clean_data)
+```
+
+Our work is divided into four parts. Each of us takes charge of one
+combination of two variables to analyze the co-influence of these two variable on the occurencies of financial crimes.
+
+Fionnuala is in charge of the combination of Product and Intruement.
+Yifeng is in charge of the combination of Supspicious.Activity and Product.
+Yaotang is in charge of the combination of Relationship and Supspicious.Activity.
+Qianhui is in charge of the combination of Relationship and Instrument.
+
+An explanation of all variables we use in this assignment:
+(Reference: https://www.fincen.gov/reports/sar-stats)
+-Suspicious Acitivity: the criminal activity type;
+-Instruments: the instrument or mechanism used in suspicious activities;
+-Products: the product types used in suspicious activities;
+-Relationship: relationship of the subject to the institution.
+
+#Part 1 (Fionnuala Mcpeake)
+
+```{r}
+clean_data %>%
+  count(Product, Instrument) %>%
+  ggplot(mapping = aes(x = Product, y = Instrument))+
+  geom_tile(mapping = aes(fill = n))+
+  theme(axis.text.x=(element_text(angle = 45)))+
+  ggtitle("Product and Instrument Tile Plot \n Fionnuala")
+
+count(clean_data, Product)
+count(clean_data, Instrument)
+```
+#Visualization and Discussion
+
+In order to determine the most frequently used combination of product and instrument used to commit fraud, a tile chart was created. As some combinations of product and instrument are not possible, such as using money orders to create stock fraud, there are blank spaces in the tile chart. As there is not a large number of combinations that can made, due in part to the facts that both variables are categorical, and both categories contain a reasonably small number of possibilities, it was not necessary to use the geom_bin2d ()or geom_hex() functions in R.
+ 
+From the tile chart, it appears that the instrument funds transfer could be used with any product considered in the cleaned data set, and that it was most likely to be used with the product insurance/annuity products. However, this is not the most commonly used instrument that was used for the product insurance/annuity products, which is actually personal/business checks, which had 192 instances. Overall, the insurance/annuity products are the most likely to be used out of any, with 507 instances. Despite funds transfer being used in conjunction with every product, it is only the second most common instrument used, with personal/business check having 36 more occurrences. This implies that the use of the combination of personal/business check and insurance/annuity products are much more prevalent, making up for the gap between the top two most common instruments.
+
+#Conclusion
+If a person wanted to reduce financial crimes, additional information would be needed in conjunction with the data used in this report. The findings in this paper indicate what the most common crimes are, and what tools are used to commit them. In order to prevent these crimes, more knowledge on exactly how these crimes are usually performed would be needed, in addition to determining signals that indicate if a crime is being committed, so an oversight body would be able to investigate while being efficient with their resources.
+
+#Part 2 (Yifeng Luo)
+
+#Part 3 (Yaotang Luo)
+
+
+#Part 4 (Qianhui Rong)
+#Objectives
+In order to see which instruments are mostly used in financial crimes, which relationships occur the most and which combinations of instruments and relationships are most frequent crime carriers, some plots need to be drawn to make deductions. Because the two concerning variables are categorial, some kinds of plots will not be useful and direct. I'll first plot bar charts to check each variable's seperate relation to occurencies, and then use point plot and tile plot to see the combination of my two variables.
+
+```{r}
+ggplot(data = clean_data)+
+  geom_bar(mapping = aes(y=Count,x=Instrument),stat = "identity")+
+  ggtitle("Crime Occurencies of Different Instruments by Qianhui Rong") +
+  labs(x="Instruments",y="Count")
+
+ggplot(data = clean_data)+
+  geom_bar(mapping = aes(y=Count,x=Relationship),stat = "identity")+
+  ggtitle("Crime Occurencies of Different Relationships by Qianhui Rong") +
+  labs(x="Relationship",y="Count") 
+
+```
+#Bar Charts
+From the bar chart of "Crime Occurencies of Different Instruments",
+We can see that Funds Transfer and Personal/Business Check are the most frequent instruments used in crimes, and the gaps between these two instruments and the others are large. Foreign Currency, as an instrument, can be neglected. 
+
+From the bar chart of "Crime Occurencies of Different Relationships", We can see that Customer as a relationship type is dominant in financial crimes. Agent and Relationship to Institutioner are the second ones, which are about a half of Customer. Attornet and Employer are negligible.
+
+```{r}
+ggplot(data = clean_data) +
+  geom_count(mapping = aes(x = Relationship, y = Instrument))+
+  ggtitle("CPoint Plor by Qianhui Rong") 
+```
+#Point Plot
+From this point plot, we can certainly see some combinations have more occurencies that others. The most frequent combination is Customer v.s P/B Check, which is about 80 times. Customer v.s Funds Transfer and Bank/Cashier Check are secondary, which are about 60 times. There are certain cross without circles, that is to say some Instruments and Relationships are not possible.
+
+#Tile Plot
+```{r}
+ggplot(data = clean_data) +
+  geom_tile(mapping = aes(x=Relationship,y=Instrument,fill=Count))+
+  ggtitle("Tile Plot by Qianhui Rong") 
+```
+From the tile plot, besides the combinations that don't exist, most of the combinations occur one time, and there five combinations occured 2 times, 3 combinations occured 3 times(including Foreign Currency v.s. No Relationship, B/C Check v.s Others, and Money Orders v.s Others).
+
+#Conclusion
+This part of work indicates which kind of relationship is most common and which instrument is most used in crimes. If we want to draw some conclusions about how to reduce financial crime in some certain aspect or by controling certain instrument and relationship, Foreign Currency, Bank/Cashier's Check and Money Orders should be paid attention to; No relationship to institution and Other relationship should be chekced for caution. 
+Additional information will be needed to determine some other cross combinations' influence on financial crime occurencies. We can combine our four parts of work to explore more.
+
+
+
+
+
+
+
