@@ -129,7 +129,6 @@ ggplot(data = clean_data) + geom_histogram( mapping = aes(x = Suspicious.Activit
 We can find that the most frequent suspicious activity is that proceeds sent to or received from unrelated third party. The second frequent suspicious activity are from excessive or unusual cash borrowing against policy and from other insurance. The number of suspicious activity comes from life settlement sales insurance is really low. 
 
 ```{r}
-
 ggplot(data = clean_data) + geom_histogram( mapping = aes(x = Relationship, y = clean_data$Count), stat= "identity") 
 ```
 
