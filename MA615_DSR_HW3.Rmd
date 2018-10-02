@@ -59,6 +59,7 @@ An explanation of all variables we use in this assignment:
 -Products: the product types used in suspicious activities;
 -Relationship: relationship of the subject to the institution.
 
+
 #Part 1 (Fionnuala Mcpeake)
 
 ```{r}
@@ -80,6 +81,7 @@ From the tile chart, it appears that the instrument funds transfer could be used
 
 #Conclusion
 If a person wanted to reduce financial crimes, additional information would be needed in conjunction with the data used in this report. The findings in this paper indicate what the most common crimes are, and what tools are used to commit them. In order to prevent these crimes, more knowledge on exactly how these crimes are usually performed would be needed, in addition to determining signals that indicate if a crime is being committed, so an oversight body would be able to investigate while being efficient with their resources.
+
 
 #Part 2 (Yifeng Luo)
 
@@ -113,11 +115,32 @@ ggplot(clean_data1,aes(Product,Count))+
   labs(title="Yifeng Luo")+
   theme(axis.text.x=(element_text(angle = 25)))
 ```
-
 *the graph above shows that overall the number of suspicious activity decreased from 2017 to 2018. But the suspicious activity is more likely to occur in insurance/annuity products both of 2017 and 2018 and 'proceeds sent or received from unrelated third party' shared a big proportion of the way of suspicious actitity in these two years.*
 
 
 #Part 3 (Yaotang Luo)
+
+#We are going to find some specific feature of the relationship between suspicious activity and relationship.
+#We first obtain the bar charts
+```{r}
+ggplot(data = clean_data) + geom_histogram( mapping = aes(x = Suspicious.Activity, y = clean_data$Count), stat= "identity") + theme(axis.text.x=(element_text(angle = 25)))
+```
+
+We can find that the most frequent suspicious activity is that proceeds sent to or received from unrelated third party. The second frequent suspicious activity are from excessive or unusual cash borrowing against policy and from other insurance. The number of suspicious activity comes from life settlement sales insurance is really low. 
+
+```{r}
+
+ggplot(data = clean_data) + geom_histogram( mapping = aes(x = Relationship, y = clean_data$Count), stat= "identity") 
+```
+
+We can obiviously find that the suspicious activity is rarely happen among attorney and employee, but most of the suspicious activity comes from costomers.
+
+```{r}
+
+ggplot(data = clean_data, mapping = aes(x = Relationship, y = clean_data$Suspicious.Activity, stat= "identity")) + geom_tile(mapping = aes(fill= Count)) + theme(axis.text.x=(element_text(angle = 45)))
+```
+
+When we compare these two variable together, we can find more information about the connection between suspicious activity and relationship.In this figure, we first find that, for the type of relationships that has least suspicious activity such as attorney and employee, their suspicious activity would just come from 'other insurance'. Second, we find that one of the type of suspicious activity, 'other insurance', contains all of the types of relationships including agent, attorney, customer, employee, no relaitionship and other. Third, although most of suspicious activity comes from customers, both of the type'no relationship to institution' and 'agent' has more suspicious activity in some areas compare to customers.' And the type of relationship, which is called 'other', is responsible for most of 'suspicious life settlement sales insurance' and 'proceeds sent to or received from unrelated third party', instead of costomers.
 
 
 #Part 4 (Qianhui Rong)
