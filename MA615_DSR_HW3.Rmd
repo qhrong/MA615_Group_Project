@@ -85,39 +85,42 @@ If a person wanted to reduce financial crimes, additional information would be n
 
 #Part 2 (Yifeng Luo)
 
+#We want to check state, instruments, products and suspicious.activity
 ```{r}
 library(ggplot2)
-#i want to check the relationship among products, suspicious.activity and count
+```
+
 #Bar charts
-p1<-ggplot(data = clean_data)+geom_bar(mapping = aes(y=Count,x=Product),stat = "identity")+theme(axis.text.x=(element_text(angle = 20)))
-p2<-ggplot(data = clean_data)+geom_bar(mapping = aes(y=Count,x=Suspicious.Activity),stat = "identity")+theme(axis.text.x=(element_text(angle = 20)))+labs(title='Plot by Yifeng Luo')
-p3<-ggplot(data = clean_data)+geom_bar(mapping = aes(y=Count,x=Year.Month),stat = "identity")
-library(gridExtra)
-grid.arrange(p1,p2,p3,ncol=3)
+```{r}
+par(mfrow=c(2,2))
+ggplot(data = clean_data)+geom_bar(mapping = aes(y=Count,x=State),stat = "identity")+theme(axis.text.x=(element_text(angle = 45)))
+ggplot(data = clean_data)+geom_bar(mapping = aes(y=Count,x=Instrument),stat = "identity")+theme(axis.text.x=(element_text(angle = 20)))
+ggplot(data = clean_data)+geom_bar(mapping = aes(y=Count,x=Product),stat = "identity")+theme(axis.text.x=(element_text(angle = 20)))
+ggplot(data = clean_data)+geom_bar(mapping = aes(y=Count,x=Suspicious.Activity),stat = "identity")+theme(axis.text.x=(element_text(angle = 20)))
+ggplot(data=clean_data)+geom_bar(mapping = aes(y=Count,x=Relationship),stat='identity')+theme(axis.text.x=(element_text(angle = 10)))
 ```
 
-From the first plot, it shows the relationship between the number of financial crime and insurance product. We can clearly notice that insurance/annuity products is the more likely occur financial crime among the 7 types of product. From the second plot, it shows the relationship between the number of financial crime and the kind of of suspicious activities. we can see the count of 'proceeds sent to or received from unrelated third party' is higher than other activities and 'Suspicious Life Settlement Sales Insurance (E.g., STOLIs, Viaticals)' has a relatively less occurs. From the third plot, I compared the count of financial crime in two different years and noticed that the total number of financial crime decreased from 2017 to 2018.
-
 ```{r}
-#let us consider more than one variable at the same time
-#combine the factors of product and suspicious activity 
+#suspicious and product
+summary(clean_data)
+```
+```{r}
 ggplot(data = clean_data) +
-  geom_count(mapping = aes(x = Product, y = Suspicious.Activity))+theme(axis.text.x=(element_text(angle = 40)))+labs(title='Plot by Yifeng Luo')
+  geom_count(mapping = aes(x = Product, y = Suspicious.Activity))+theme(axis.text.x=(element_text(angle = 40)))+labs(title='Yifeng Luo')
 ```
 
-From the graph above, we can see among the 7 types of insurance product, the 'insurance/annuity product' is often used by criminals with the suspicious activities of 'proceeds sent to or received from unrelated third party' and 'excessive or unusal cash borrowing against policy/annuity'. Compare with the other insurance product, like 'prepaid access', 'residential mortgage', 'stock' and 'debit card' rare happend financial crime.
+*From the graphs above, we can see among the 7 types of insurance product, the 'insurance/annuity product' is the most popular, moreover, it always appears with the suspicious activity in 'proceeds sent to or received from unrelated third party' and 'excessive or unusal cash borrowing against policy/annuity'. compare with the other insurance product, like 'prepaid access', 'residential mortgage', 'stock' and 'debit card' rare happend suspicious activity.*
 
 ```{r}
-#product, suspicious activity, count and time
 clean_data %>% select(Product,Suspicious.Activity,Count) -> clean_data1
 ggplot(clean_data1,aes(Product,Count))+
   geom_bar(aes(fill=Suspicious.Activity),stat = "identity",width=0.8)+
   facet_grid(clean_data$Year.Month~.)+
-  labs(title="Plot by Yifeng Luo")+
+  labs(title="Yifeng Luo")+
   theme(axis.text.x=(element_text(angle = 25)))
 ```
 
-The graph above shows that the overall number of suspicious activity decreased from 2017 to 2018. But the suspicious activity is more likely to occur in insurance/annuity products in both of 2017 and 2018 and 'proceeds sent or received from unrelated third party' shared a big proportion of the way of suspicious actitity in these two years.
+*the graph above shows that overall the number of suspicious activity decreased from 2017 to 2018. But the suspicious activity is more likely to occur in insurance/annuity products both of 2017 and 2018 and 'proceeds sent or received from unrelated third party' shared a big proportion of the way of suspicious actitity in these two years.*
 
 
 #Part 3 (Yaotang Luo)
