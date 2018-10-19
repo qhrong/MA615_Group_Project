@@ -26,7 +26,7 @@ library(lubridate)
 ##BASEBALL REDSOX
 #First Part: Merging Redsox attendance data with Weather data by the key of data
 ```{r}
-#Import all data files needed
+#Import all data files needed(a column added)
 weather_data <- read.csv("weather.csv")
 redsox12 <- read.csv("redsox12.csv")
 redsox13 <- read.csv("redsox13.csv")
