@@ -2,7 +2,10 @@
 title: "615MidtermProj_Qianhui_Rong"
 author: "Qianhui Rong"
 date: "10/19/2018"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -24,13 +27,13 @@ library(lubridate)
 #First Part: Merging Redsox attendance data with Weather data by the key of data
 ```{r}
 #Import all data files needed (In excel, a column of year has already been added)
-weather_data <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/weather.csv")
-redsox12 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox12.csv")
-redsox13 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox13.csv")
-redsox14 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox14.csv")
-redsox15 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox15.csv")
-redsox16 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox16.csv")
-redsox17 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox17.csv")
+weather_data <- read.csv("weather.csv")
+redsox12 <- read.csv("redsox12.csv")
+redsox13 <- read.csv("redsox13.csv")
+redsox14 <- read.csv("redsox14.csv")
+redsox15 <- read.csv("redsox15.csv")
+redsox16 <- read.csv("redsox16.csv")
+redsox17 <- read.csv("redsox17.csv")
 
 #Combine redsox data
 redsox_whole <- rbind(redsox12,redsox13,redsox14,redsox15,redsox16,redsox17)
@@ -92,25 +95,18 @@ ggplot(merged,aes(x=Opp,y=as.numeric(Attendance)))+geom_bar(aes(y = (..count..)/
 For the opponents'bar chart, we can see that when the Redsox's opponent is BAL, NYY, TBR or TOR, the attendance amount tends to be higher than the others. As many of these teams come from nearby regions, it is also possible that fans of the opposing team were able to attend the game, increasing attendance. 
 
 #Forth Part: Shiny app (try out another version, but it didn't fully work, so the published version is Fionnuala's version.)
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+```{r}
 
 library(tidyverse)
 library(dplyr)
 ##Redsox Data
-weather_data <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/weather.csv")
-redsox12 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox12.csv")
-redsox13 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox13.csv")
-redsox14 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox14.csv")
-redsox15 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox15.csv")
-redsox16 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox16.csv")
-redsox17 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox17.csv")
+weather_data <- read.csv("weather.csv")
+redsox12 <- read.csv("redsox12.csv")
+redsox13 <- read.csv("redsox13.csv")
+redsox14 <- read.csv("redsox14.csv")
+redsox15 <- read.csv("redsox15.csv")
+redsox16 <- read.csv("redsox16.csv")
+redsox17 <- read.csv("redsox17.csv")
 
 #Combine redsox data
 redsox_whole <- rbind(redsox12,redsox13,redsox14,redsox15,redsox16,redsox17)
@@ -141,8 +137,8 @@ merged <- left_join(new2_redsox,weather_new,by="Date")
 
 library(readxl)
 
-weather_data <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/weather.csv")
-date<-read.csv('/Users/apple/Desktop/MA615 DSR/Midterm Project/date.csv')
+weather_data <- read.csv("weather.csv")
+date<-read.csv('date.csv')
 reduce_date<-date[1:328,]
 home_date <- reduce_date[-which(reduce_date$X.2 == "@")] 
 
@@ -256,3 +252,5 @@ shinyServer(
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+```
+
