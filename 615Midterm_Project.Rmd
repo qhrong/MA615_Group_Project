@@ -9,6 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+##Contribution:
+##Fionnuala: getting Celtics attendance data, shiny app, EDA writing and editting
+##Qianhui: merging Redsox data, Redsox EDA and plots, shiny app 
+##Yaotang: getting Redsox data, Celtics EDA, shiny app
+##Yifeng: getting Celtics data, Celtics EDA, shiny app
+
 ```{r}
 #List all libraries needed
 library(ggplot2)
@@ -21,13 +27,13 @@ library(lubridate)
 #First Part: Merging Redsox attendance data with Weather data by the key of data
 ```{r}
 #Import all data files needed (In excel, a column of year has already been added)
-weather_data <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/weather.csv")
-redsox12 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox12.csv")
-redsox13 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox13.csv")
-redsox14 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox14.csv")
-redsox15 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox15.csv")
-redsox16 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox16.csv")
-redsox17 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox17.csv")
+weather_data <- read.csv("weather.csv")
+redsox12 <- read.csv("redsox12.csv")
+redsox13 <- read.csv("redsox13.csv")
+redsox14 <- read.csv("redsox14.csv")
+redsox15 <- read.csv("redsox15.csv")
+redsox16 <- read.csv("redsox16.csv")
+redsox17 <- read.csv("redsox17.csv")
 
 #Combine redsox data
 redsox_whole <- rbind(redsox12,redsox13,redsox14,redsox15,redsox16,redsox17)
@@ -82,7 +88,7 @@ The scatter plot shows the relationship between average temperature and attendan
 
 The scatter plot of average wind speed does show a clear positive relationship between wind speed and attendance. 
 
-#Third Part: Think about the opponents and the attendance amount
+
 #Third Part: Think about the opponents and the attendance amount
 We estimate that when Redsox's opponent is a strong one or a famous one, like New York Yankees, the attendance should be higher, and for those with less familiarity, the attendance amount should be lower.
 
@@ -123,8 +129,8 @@ The plot shows exactly the opposite of our expectation. A great year had smaller
 ```{r}
 library(readxl)
 
-weather_data <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/weather.csv")
-date<-read.csv('/Users/apple/Desktop/MA615 DSR/Midterm Project/date.csv')
+weather_data <- read.csv("weather.csv")
+date<-read.csv('date.csv')
 reduce_date<-date[1:328,]
 home_date <- reduce_date[-which(reduce_date$X.2 == "@")] 
 ```
@@ -172,11 +178,23 @@ celtics<-new_attendance %>% select(Date,celtics_attendance)
 celtics$Date<-as.Date(celtics$Date, '%a, %b %d, %Y')
 weather_data$Date<-as.Date(weather_data$DATE, '%m/%d/%y')
 complete_data<-left_join(celtics,weather_data,by='Date')
-reduce_data<-complete_data %>% select(Date,AWND,PRCP,SNOW,TMAX,TMIN,TAVG,celtics_attendance)
+reduce_data<-complete_data %>% select(Date,AWND,PRCP,SNOW,TMAX,TMIN,TAVG,celtics_attendance) %>% mutate(ATEM=(TMAX+TMIN)/2)
+
 reduce_data$TAVG[1:36]<-round((reduce_data$TMAX[1:36]+reduce_data$TMIN[1:36])/2)
+reduce_data$weekday <- weekdays(reduce_data$Date)
+unique(reduce_data$weekday)
+#N<-dim(reduce_data)[1]
+#for (i in 1:164){
+ # if (reduce_data$weekday[i]=='Friday'){reduce_data$type=1}else{reduce_data$type==0}}
+reduce_data$type<- ifelse(reduce_data$weekday=='Friday','weekend_game',
+                         ifelse(reduce_data$weekday=='Saturday','weekend_game',
+                                ifelse(reduce_data$weekday=='Sunday','weekday_game',
+                                       ifelse(reduce_data$weekday=='Monday','weekday_game',
+                                              ifelse(reduce_data$weekday=='Thursday','weekday_game',
+                                                     ifelse(reduce_data$weekday=='Wednesday','weekday_game',
+                                                            ifelse(reduce_data$weekday=='Tuesday','weekday_game',0)))))))
 
 
-#names(new_attendance)
 ```
 
 #Second Part: draw weather plots
@@ -198,6 +216,12 @@ ggplot(reduce_data,aes(x=SNOW,y= celtics_attendance,color=PRCP_gp))+
 
 #Scatter plot and line of AWND
 ggplot(reduce_data, aes(x=AWND,y= celtics_attendance)) + geom_point()
+
+ggplot(reduce_data,aes(x=type,y=celtics_attendance,color=PRCP_gp))+
+  geom_boxplot()+facet_wrap(~PRCP_gp)+theme(axis.text.x=(element_text(angle = 15)))
+
+#ggplot(reduce_data,aes(x=PRCP_gp,y=celtics_attendance,color=PRCP_gp))+
+ # geom_boxplot()+theme(axis.text.x=(element_text(angle = 15)))
 ```
 
 1)The boxplot which displays the relationship between percipitation level and attendance reveals that when the percipitation level is high , the average of attendance is relatively higher compare to when the percipitation is medium and low. However, when the percipitation level is low or medium, the difference of attendance is not evident: the minimum of attendance(low) is lower that the minimum of attendance(medium), even though the median of attendance(low) is higher than attendance(medium).This observation is different from our expectations.
@@ -206,8 +230,12 @@ ggplot(reduce_data, aes(x=AWND,y= celtics_attendance)) + geom_point()
 
 3)The scatter plot of average wind speed does show a clear relationship between wind speed and attendance. 
 
+4)The scatter plot indicate people were more likely to attend a game in the weekday and the range of attendance of games happended at weekend is bigger than weekday. The box plot illustrates the attendance of Celtic games in weekend or weekday, filled in to indicate if the game was played on a heavy rainy day or not. To be honest, we supoosed that people were more likely to attend a game at weekend due to they did not have school or work the next day, assuming a traditional schedule, and that this could possibly overcome undesirable weather. However, the box plot show a unexpected result. Examination of the graph shows that games played on weekdays do not reduce attendance. The game played at weekday on average have a higher attendance than at weekend in a high level of precipitation. Additionally, the games that have the lowest attendance are played on dry days at weekend. Our belief that weekends will overcome bad weather is disproved. Meanwhile, we can see that games played on weekends have a greater range of attendance form the box plot. It probobly caused by basketball is played indoors, we expected it to have a weaker effect on attendance than it would on baseball.
+
+
 #Fifth Part: Shiny App
 ```{r}
+
 library(shiny) # load the shiny package
 
 # Define UI for application
@@ -242,12 +270,12 @@ ui <- shinyUI(fluidPage(
 )
 )
 library(shiny) # Load shiny package
-redsox12 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox12.csv")
-redsox13 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox13.csv")
-redsox14 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox14.csv")
-redsox15 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox15.csv")
-redsox16 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox16.csv")
-redsox17 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox17.csv")
+redsox12 <- read.csv("redsox12.csv")
+redsox13 <- read.csv("redsox13.csv")
+redsox14 <- read.csv("redsox14.csv")
+redsox15 <- read.csv("redsox15.csv")
+redsox16 <- read.csv("redsox16.csv")
+redsox17 <- read.csv("redsox17.csv")
 
 #Combine redsox data
 redsox_whole <- rbind(redsox12,redsox13,redsox14,redsox15,redsox16,redsox17)
@@ -281,4 +309,7 @@ shinyServer(
 # Run the application 
 shinyApp(ui = ui, server = server)
 ```
+
+```
+
 
