@@ -1,0 +1,164 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+
+library(tidyverse)
+library(dplyr)
+##Redsox Data
+weather_data <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/weather.csv")
+redsox12 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox12.csv")
+redsox13 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox13.csv")
+redsox14 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox14.csv")
+redsox15 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox15.csv")
+redsox16 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox16.csv")
+redsox17 <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/redsox17.csv")
+
+#Combine redsox data
+redsox_whole <- rbind(redsox12,redsox13,redsox14,redsox15,redsox16,redsox17)
+#Join the year column and the date column into one
+date_mdy <- stringr::str_c(redsox_whole$Year,redsox_whole$Date,sep=",")
+redsox_whole$date_mdy <- date_mdy #Add a new column into our data
+
+#Change the format of date_mdy
+redsox_whole$Date <- as.Date(redsox_whole$date_mdy, "%Y,%A, %b %d")
+
+#Add a weekday column
+redsox_whole$weekday <- weekdays(redsox_whole$Date)
+
+#Deleting all away games
+atinredsox <- which(redsox_whole$X.1 == "@")
+new_redsox <- redsox_whole[-atinredsox,] #the new data
+new_redsox %>% select(Date,Opp,Attendance,weekday)->new2_redsox
+
+#AWND: average daily wind speed data
+weather_data %>% select(DATE,AWND,PRCP,TMAX,TMIN) %>% mutate(ATEM=(TMAX+TMIN)/2)->weather_new
+weather_new$Date <- weather_new$DATE
+weather_new$Date <- as.Date(weather_new$DATE,'%Y-%m-%d')
+
+#Join the two datas
+merged <- left_join(new2_redsox,weather_new,by="Date")
+
+##Celtics Data
+
+library(readxl)
+
+weather_data <- read.csv("/Users/apple/Desktop/MA615 DSR/Midterm Project/weather.csv")
+date<-read.csv('/Users/apple/Desktop/MA615 DSR/Midterm Project/date.csv')
+reduce_date<-date[1:328,]
+home_date <- reduce_date[-which(reduce_date$X.2 == "@")] 
+
+library(XML)
+library(tidyverse)
+library(RCurl)
+library(rvest)
+library(stringr)
+library(ggplot2)
+library(dplyr)
+games <- c("http://www.espn.com/nba/game?gameId=400277737", "http://www.espn.com/nba/game?gameId=400277774", "http://www.espn.com/nba/game?gameId=400277790", "http://www.espn.com/nba/game?gameId=400277830", "http://www.espn.com/nba/game?gameId=400277851", "http://www.espn.com/nba/game?gameId=400277881", "http://www.espn.com/nba/game?gameId=400277893", "http://www.espn.com/nba/game?gameId=400277931", "http://www.espn.com/nba/game?gameId=400277945", "http://www.espn.com/nba/game?gameId=400277979",
+           "http://www.espn.com/nba/game?gameId=400278005", "http://www.espn.com/nba/game?gameId=400278035", "http://www.espn.com/nba/game?gameId=400278090", "http://www.espn.com/nba/game?gameId=400278102", "http://www.espn.com/nba/game?gameId=400278188", "http://www.espn.com/nba/game?gameId=400278203", "http://www.espn.com/nba/game?gameId=400278239", "http://www.espn.com/nba/game?gameId=400278251", "http://www.espn.com/nba/game?gameId=400278277", "http://www.espn.com/nba/game?gameId=400278293", "http://www.espn.com/nba/game?gameId=400278304", "http://www.espn.com/nba/game?gameId=400278350", "http://www.espn.com/nba/game?gameId=400278372", "http://www.espn.com/nba/game?gameId=400278392", "http://www.espn.com/nba/game?gameId=400278406", "http://www.espn.com/nba/game?gameId=400278425", "http://www.espn.com/nba/game?gameId=400278453", "http://www.espn.com/nba/game?gameId=400278474", "http://www.espn.com/nba/game?gameId=400278498", "http://www.espn.com/nba/game?gameId=400278587", "http://www.espn.com/nba/game?gameId=400278637", "http://www.espn.com/nba/game?gameId=400278679", "http://www.espn.com/nba/game?gameId=400278700", "http://www.espn.com/nba/game?gameId=400278718", "http://www.espn.com/nba/game?gameId=400278774", "http://www.espn.com/nba/game?gameId=400278795", "http://www.espn.com/nba/game?gameId=400278835", "http://www.espn.com/nba/game?gameId=400278847", "http://www.espn.com/nba/game?gameId=400278867", "http://www.espn.com/nba/game?gameId=400278888",
+           "http://www.espn.com/nba/game?gameId=400488897", "http://www.espn.com/nba/game?gameId=400488937", "http://www.espn.com/nba/game?gameId=400488974", "http://www.espn.com/nba/game?gameId=400488986", "http://www.espn.com/nba/game?gameId=400489001", "http://www.espn.com/nba/game?gameId=400489052",
+           "http://www.espn.com/nba/game?gameId=400489090", "http://www.espn.com/nba/game?gameId=400489105",
+           "http://www.espn.com/nba/game?gameId=400489135", "http://www.espn.com/nba/game?gameId=400489156", "http://www.espn.com/nba/game?gameId=400489192", "http://www.espn.com/nba/game?gameId=400489206", "http://www.espn.com/nba/game?gameId=400489231", "http://www.espn.com/nba/game?gameId=400489246", "http://www.espn.com/nba/game?gameId=400489266", "http://www.espn.com/nba/game?gameId=400489309", "http://www.espn.com/nba/game?gameId=400489333", "http://www.espn.com/nba/game?gameId=400489357", "http://www.espn.com/nba/game?gameId=400489429", "http://www.espn.com/nba/game?gameId=400489442", "http://www.espn.com/nba/game?gameId=400489459", "http://www.espn.com/nba/game?gameId=400489509", "http://www.espn.com/nba/game?gameId=400489531", "http://www.espn.com/nba/game?gameId=400489551", "http://www.espn.com/nba/game?gameId=400489582", "http://www.espn.com/nba/game?gameId=400489616", "http://www.espn.com/nba/game?gameId=400489631", "http://www.espn.com/nba/game?gameId=400489653", "http://www.espn.com/nba/game?gameId=400489727", "http://www.espn.com/nba/game?gameId=400489750", "http://www.espn.com/nba/game?gameId=400489780", "http://www.espn.com/nba/game?gameId=400489793", "http://www.espn.com/nba/game?gameId=400489810", "http://www.espn.com/nba/game?gameId=400489835", "http://www.espn.com/nba/game?gameId=400489848", "http://www.espn.com/nba/game?gameId=400489882", "http://www.espn.com/nba/game?gameId=400489936", "http://www.espn.com/nba/game?gameId=400489970", "http://www.espn.com/nba/game?gameId=400490006", "http://www.espn.com/nba/game?gameId=400490051", "http://www.espn.com/nba/game?gameId=400490095", "http://www.espn.com/nba/game?gameId=400578298", "http://www.espn.com/nba/game?gameId=400578351", "http://www.espn.com/nba/game?gameId=400578351", "http://www.espn.com/nba/game?gameId=400578366", "http://www.espn.com/nba/game?gameId=400578403", "http://www.espn.com/nba/game?gameId=400578417", "http://www.espn.com/nba/game?gameId=400578440", "http://www.espn.com/nba/game?gameId=400578486", "http://www.espn.com/nba/game?gameId=400578515", "http://www.espn.com/nba/game?gameId=400578533", "http://www.espn.com/nba/game?gameId=400578557", "http://www.espn.com/nba/game?gameId=400578571", "http://www.espn.com/nba/game?gameId=400578586", "http://www.espn.com/nba/game?gameId=400578623", "http://www.espn.com/nba/game?gameId=400578663", "http://www.espn.com/nba/game?gameId=400578677", "http://www.espn.com/nba/game?gameId=400578724", "http://www.espn.com/nba/game?gameId=400578767", "http://www.espn.com/nba/game?gameId=400578778", "http://www.espn.com/nba/game?gameId=400578802", "http://www.espn.com/nba/game?gameId=400578855", "http://www.espn.com/nba/game?gameId=400578872", "http://www.espn.com/nba/game?gameId=400578883", "http://www.espn.com/nba/game?gameId=400578990", "http://www.espn.com/nba/game?gameId=400579008", "http://www.espn.com/nba/game?gameId=400579025", "http://www.espn.com/nba/game?gameId=400579042", "http://www.espn.com/nba/game?gameId=400579081", "http://www.espn.com/nba/game?gameId=400579136", "http://www.espn.com/nba/game?gameId=400579151", "http://www.espn.com/nba/game?gameId=400579172", "http://www.espn.com/nba/game?gameId=400579190", "http://www.espn.com/nba/game?gameId=400579246", "http://www.espn.com/nba/game?gameId=400579261", "http://www.espn.com/nba/game?gameId=400579284", "http://www.espn.com/nba/game?gameId=400579335", "http://www.espn.com/nba/game?gameId=400579356", "http://www.espn.com/nba/game?gameId=400579387", "http://www.espn.com/nba/game?gameId=400579407", "http://www.espn.com/nba/game?gameId=400579421", "http://www.espn.com/nba/game?gameId=400579486",
+           "http://www.espn.com/nba/game?gameId=400579506", "http://www.espn.com/nba/game?gameId=400827892", "http://www.espn.com/nba/game?gameId=400827911", "http://www.espn.com/nba/game?gameId=400827927", "http://www.espn.com/nba/game?gameId=400827963", "http://www.espn.com/nba/game?gameId=400828003", "http://www.espn.com/nba/game?gameId=400828016", "http://www.espn.com/nba/game?gameId=400828055", "http://www.espn.com/nba/game?gameId=400828066", "http://www.espn.com/nba/game?gameId=400828104", "http://www.espn.com/nba/game?gameId=400828116", "http://www.espn.com/nba/game?gameId=400828169", "http://www.espn.com/nba/game?gameId=400828206", "http://www.espn.com/nba/game?gameId=400828223", "http://www.espn.com/nba/game?gameId=400828254", "http://www.espn.com/nba/game?gameId=400828276", "http://www.espn.com/nba/game?gameId=400828298", "http://www.espn.com/nba/game?gameId=400828341", "http://www.espn.com/nba/game?gameId=400828363", "http://www.espn.com/nba/game?gameId=400828382", "http://www.espn.com/nba/game?gameId=400828415", "http://www.espn.com/nba/game?gameId=400828467", "http://www.espn.com/nba/game?gameId=400828482", "http://www.espn.com/nba/game?gameId=400828533", "http://www.espn.com/nba/game?gameId=400828572", "http://www.espn.com/nba/game?gameId=400828585", "http://www.espn.com/nba/game?gameId=400828624", "http://www.espn.com/nba/game?gameId=400828660", "http://www.espn.com/nba/game?gameId=400828679", "http://www.espn.com/nba/game?gameId=400828743", "http://www.espn.com/nba/game?gameId=400828756", "http://www.espn.com/nba/game?gameId=400828773", "http://www.espn.com/nba/game?gameId=400828786", "http://www.espn.com/nba/game?gameId=400828840", "http://www.espn.com/nba/game?gameId=400828852", "http://www.espn.com/nba/game?gameId=400828890", "http://www.espn.com/nba/game?gameId=400828933", "http://www.espn.com/nba/game?gameId=400828944", "http://www.espn.com/nba/game?gameId=400829055", "http://www.espn.com/nba/game?gameId=400829068", "http://www.espn.com/nba/game?gameId=400829092", "http://www.espn.com/nba/game?gameId=400829104")
+
+
+celtics_attendance <- vector("numeric", 164)
+for (i in 1:length(games)){
+  read_html(games[i]) %>%
+    html_nodes("#gamepackage-game-information") %>%
+    html_text() %>%
+    strsplit(split = "\n") %>%
+    unlist() %>%
+    .[. != ""]  -> n
+  str_extract(n, "Attendance: ..,...") -> n1
+  str_extract(n1, "..,...") -> n2
+  na.omit(n2)-> n3 #take out comma, then do as.intiger
+  n4 <- as.integer(gsub(",", "", n3)) 
+  n4 -> celtics_attendance[i]
+}
+celtics_attendance
+
+attendance<-as.data.frame(celtics_attendance)
+library(dplyr)
+new_attendance<-cbind(attendance,home_date)
+celtics<-new_attendance %>% select(Date,celtics_attendance)
+celtics$Date<-as.Date(celtics$Date, '%a, %b %d, %Y')
+weather_data$Date<-as.Date(weather_data$DATE, '%m/%d/%y')
+complete_data<-left_join(celtics,weather_data,by='Date')
+reduce_data<-complete_data %>%
+  select(Date,AWND,PRCP,SNOW,TMAX,TMIN,TAVG,celtics_attendance) %>%
+  mutate(ATEM=(TMAX+TMIN)/2)
+
+#Shiny Layout
+library(shiny) # load the shiny package
+
+# Define UI for application
+ui <- shinyUI(fluidPage(
+  
+  # Header or title Panel 
+  titlePanel(h4('Attendance vs Weather', align = "center")),
+  
+  # Sidebar panel
+  sidebarPanel(
+    
+    
+    
+    selectInput("var", label = "1. Select the quantitative Variable", 
+                choices = c("Baseball" = 1, "Basketball" = 2),
+                selected = 1), 
+    
+    
+    selectInput("bin", "2. Select the weather variable to put as x-axis", 
+                choices=c("ATEM"=1,"AWND"=2,"PRCP"=3),selected=1)
+    
+    
+  ),
+  
+  # Main Panel
+  mainPanel(
+    
+    plotOutput("myscatter"),
+    plotOutput("myscatter2")
+    
+  )
+  
+)
+)
+
+##Shiny Server
+
+shinyServer(
+  
+  
+  server <- function(input, output) {
+    
+    
+    if(var=="Baseball"){
+      
+      output$myscatter <- renderPlot(
+      ifelse(input$bin=="ATEM",colm2=which(colnames(merged)=="ATEM",
+        ifelse(nput$bin=="AWND",colm2=which(colnames(merged=="AWND"),
+          ifelse(input$bin=="PRCP",colm2=which(colnames(merged=="PRCP"))))))),
+      ggplot(data=merged,x=merged[,colm2],y=as.numeric(Attendance))+geom_point()
+      )
+    }
+    
+    if(var=="Basketball"){
+      
+      output$myscatter2 <- renderPlot(
+        ifelse(input$bin=="ATEM",colm2=which(colnames(reduce_data)=="ATEM",
+          ifelse(input$bin=="AWND",colm2=which(colnames(reduce_data=="AWND"),
+            ifelse(input$bin=="PRCP",colm2=which(colnames(reduce_data=="PRCP"))))))),
+        ggplot(data=reduce_data,x=reduce_data[,colm2],y=as.numeric(celtics_attendance),type = "p")
+      )    
+    }
+  }
+)
+
+# Run the application 
+shinyApp(ui = ui, server = server)
